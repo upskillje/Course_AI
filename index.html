@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AGGP AI Awareness & Adoption Training</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony -->
+    <!-- Application Structure Plan: The SPA is designed as a single-page, vertical-scrolling experience with a sticky top navigation bar. This non-linear structure allows users (AGGP employees) to freely explore the training content based on their interests, rather than being confined to the linear flow of the original document. The sections are task-oriented ('Fundamentals', 'Tool Comparison', 'Productivity') to be more intuitive. Key interactions include a dynamic chart for comparing AI tools and a prompt simulator in the workshop section. This structure was chosen to transform a static lesson plan into an engaging, self-paced learning tool, enhancing comprehension and retention. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Core AI Concepts (AI, ML, NLP). Goal: Inform. Viz/Method: Interactive accordion (HTML/JS). Interaction: Click to reveal definitions. Justification: Condenses foundational knowledge into a digestible, on-demand format.
+        - Report Info: Public vs. Enterprise AI comparison table. Goal: Compare. Viz/Method: Static HTML table + Dynamic Bar Chart (Chart.js). Interaction: Buttons toggle the chart to visualize 'Security' and 'Data Access' differences. Justification: A visual chart makes the abstract but critical differences in security and data handling immediately apparent, which is more impactful than a table alone.
+        - Report Info: Productivity Use Cases. Goal: Inform/Organize. Viz/Method: Clickable tabs (HTML/JS). Interaction: Clicking a tab (e.g., 'Email Drafting') reveals a detailed example. Justification: Organizes multiple examples cleanly, preventing information overload and allowing users to focus on one use case at a time.
+        - Report Info: Prompt Engineering example. Goal: Change/Inform. Viz/Method: Interactive text block with Gemini API call. Interaction: User enters a prompt, clicks a button, and Gemini API returns an optimized version. Justification: Actively teaches skillful prompting in a hands-on, personalized manner.
+        - New Feature: AI Ideation Hub. Goal: Ideate/Innovate. Viz/Method: Dropdown + Gemini API call. Interaction: User selects a philanthropic goal, and Gemini generates AI application ideas. Justification: Directly connects AI capabilities to the organization's mission, fostering practical innovation.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .nav-link { transition: color 0.3s, border-bottom-color 0.3s; }
+        .nav-link.active { color: #2563eb; border-bottom-color: #2563eb; }
+        .nav-link:not(.active) { border-bottom-color: transparent; }
+        .section-fade-in { animation: fadeIn 0.8s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .chart-container { position: relative; width: 100%; max-width: 700px; margin-left: auto; margin-right: auto; height: 350px; max-height: 40vh; }
+        @media (min-width: 768px) { .chart-container { height: 400px; } }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-xl md:text-2xl font-bold text-blue-800">AGGP AI Training</h1>
+            <nav class="hidden md:flex space-x-6">
+                <a href="#welcome" class="nav-link font-medium text-gray-600 hover:text-blue-600 border-b-2 pb-1">Welcome</a>
+                <a href="#fundamentals" class="nav-link font-medium text-gray-600 hover:text-blue-600 border-b-2 pb-1">AI Fundamentals</a>
+                <a href="#comparison" class="nav-link font-medium text-gray-600 hover:text-blue-600 border-b-2 pb-1">Tool Comparison</a>
+                <a href="#productivity" class="nav-link font-medium text-gray-600 hover:text-blue-600 border-b-2 pb-1">Productivity</a>
+                <a href="#security" class="nav-link font-medium text-gray-600 hover:text-blue-600 border-b-2 pb-1">Security</a>
+                <a href="#workshop" class="nav-link font-medium text-gray-600 hover:text-blue-600 border-b-2 pb-1">Workshop</a>
+                <a href="#ideation" class="nav-link font-medium text-gray-600 hover:text-blue-600 border-b-2 pb-1">Ideation Hub</a>
+            </nav>
+            <div class="md:hidden">
+                <select id="mobile-nav" class="bg-white border border-gray-300 rounded-md p-2">
+                    <option value="#welcome">Welcome</option>
+                    <option value="#fundamentals">AI Fundamentals</option>
+                    <option value="#comparison">Tool Comparison</option>
+                    <option value="#productivity">Productivity</option>
+                    <option value="#security">Security</option>
+                    <option value="#workshop">Workshop</option>
+                    <option value="#ideation">Ideation Hub</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section id="welcome" class="py-16 md:py-24 bg-white section-fade-in">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">AI Awareness & Adoption for AGGP</h2>
+                <p class="max-w-3xl mx-auto text-lg text-gray-600 mb-8">
+                    This interactive guide supports AGGP's mission by providing a clear, practical understanding of Artificial Intelligence. It is designed to demystify AI with relatable examples, empowering you to make informed, secure decisions about AI adoption in ways that align with our philanthropic goals and operational integrity.
+                </p>
+                <a href="#fundamentals" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-full hover:bg-blue-700 transition duration-300">Start Exploring</a>
+            </div>
+        </section>
+
+        <section id="fundamentals" class="py-16 md:py-24 section-fade-in">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900">What is AI?</h2>
+                    <p class="max-w-2xl mx-auto mt-4 text-lg text-gray-600">
+                        This section breaks down the core concepts of Artificial Intelligence. Click on each term to understand its meaning and how it fits into the broader picture. The goal is to build a foundational vocabulary for discussing and using AI effectively.
+                    </p>
+                </div>
+                <div id="accordion-container" class="max-w-3xl mx-auto">
+                    <div class="accordion-item border rounded-lg mb-4 bg-white shadow-sm overflow-hidden">
+                        <button class="accordion-header w-full text-left p-5 font-semibold text-lg flex justify-between items-center" data-target="content-1">
+                            Artificial Intelligence (AI)
+                            <span class="transform transition-transform duration-300">▼</span>
+                        </button>
+                        <div id="content-1" class="accordion-content max-h-0 overflow-hidden transition-max-height duration-500 ease-in-out">
+                            <p class="p-5 pt-0 text-gray-600">AI is the broad concept of machines being able to carry out tasks in a way that we would consider "smart." It's the umbrella term for any time a computer mimics human intelligence, from understanding language to recognizing images.</p>
+                        </div>
+                    </div>
+                    <div class="accordion-item border rounded-lg mb-4 bg-white shadow-sm overflow-hidden">
+                        <button class="accordion-header w-full text-left p-5 font-semibold text-lg flex justify-between items-center" data-target="content-2">
+                            Machine Learning (ML)
+                            <span class="transform transition-transform duration-300">▼</span>
+                        </button>
+                        <div id="content-2" class="accordion-content max-h-0 overflow-hidden transition-max-height duration-500 ease-in-out">
+                             <p class="p-5 pt-0 text-gray-600">ML is a subset of AI where systems learn from data to identify patterns and make decisions without being explicitly programmed. <br><br><strong>Analogy:</strong> Think of your email's spam filter. It has learned from millions of examples what "spam" looks like to protect your inbox automatically.</p>
+                        </div>
+                    </div>
+                    <div class="accordion-item border rounded-lg mb-4 bg-white shadow-sm overflow-hidden">
+                        <button class="accordion-header w-full text-left p-5 font-semibold text-lg flex justify-between items-center" data-target="content-3">
+                            Generative AI (GenAI)
+                             <span class="transform transition-transform duration-300">▼</span>
+                        </button>
+                        <div id="content-3" class="accordion-content max-h-0 overflow-hidden transition-max-height duration-500 ease-in-out">
+                            <p class="p-5 pt-0 text-gray-600">GenAI is a type of AI that can create new, original content, such as text, images, or code, based on the patterns it has learned from its training data. Large Language Models (LLMs) like ChatGPT are a prime example.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="comparison" class="py-16 md:py-24 bg-white section-fade-in">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900">AI Tools: Public vs. Enterprise</h2>
+                    <p class="max-w-3xl mx-auto mt-4 text-lg text-gray-600">
+                        Not all AI tools are created equal. This section highlights the crucial differences between public tools (like the free version of ChatGPT) and enterprise solutions (like Microsoft Copilot). Understanding these distinctions is key to using AI securely and effectively for work.
+                    </p>
+                </div>
+                
+                <div class="chart-container mb-12">
+                    <canvas id="comparisonChart"></canvas>
+                </div>
+                <div class="text-center mb-12">
+                    <button id="securityBtn" class="bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg mr-4 hover:bg-blue-700 transition">Security Comparison</button>
+                    <button id="dataAccessBtn" class="bg-gray-300 text-gray-800 font-semibold py-2 px-6 rounded-lg hover:bg-gray-400 transition">Data Access Comparison</button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border-gray-200 shadow-md rounded-lg">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="py-3 px-6 text-left text-sm font-bold text-gray-600 uppercase">Feature</th>
+                                <th class="py-3 px-6 text-left text-sm font-bold text-gray-600 uppercase">Public Gen AI (e.g., ChatGPT)</th>
+                                <th class="py-3 px-6 text-left text-sm font-bold text-gray-600 uppercase">Enterprise AI (e.g., Microsoft Copilot)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-700">
+                            <tr class="border-b">
+                                <td class="py-4 px-6 font-semibold">Security</td>
+                                <td class="py-4 px-6">Public cloud, data may be used for training. ⚠️</td>
+                                <td class="py-4 px-6">Secure use within organization's tenant, no data training. ✅</td>
+                            </tr>
+                            <tr class="border-b bg-gray-50">
+                                <td class="py-4 px-6 font-semibold">Data Access</td>
+                                <td class="py-4 px-6">No access to internal data.</td>
+                                <td class="py-4 px-6">Access to internal M365 data (emails, docs).</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="py-4 px-6 font-semibold">Integration</td>
+                                <td class="py-4 px-6">Web-based, standalone.</td>
+                                <td class="py-4 px-6">Embedded in Microsoft 365 apps.</td>
+                            </tr>
+                             <tr class="border-b bg-gray-50">
+                                <td class="py-4 px-6 font-semibold">Best For</td>
+                                <td class="py-4 px-6">Personal use, public information tasks.</td>
+                                <td class="py-4 px-6">Day-to-day productivity with work data.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="productivity" class="py-16 md:py-24 section-fade-in">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900">AI as a Productivity Multiplier</h2>
+                    <p class="max-w-3xl mx-auto mt-4 text-lg text-gray-600">
+                        Enterprise AI can significantly boost your productivity by automating and assisting with daily tasks. This section provides concrete, "real-world" examples of how to use tools like Microsoft Copilot to save time and focus on more strategic work. Click the tabs to explore different use cases.
+                    </p>
+                </div>
+                <div class="max-w-4xl mx-auto">
+                    <div class="mb-4 flex border-b">
+                        <button class="tab-link active p-4 font-semibold text-blue-600 border-b-2 border-blue-600" data-target="tab-email">Email Drafting</button>
+                        <button class="tab-link p-4 font-semibold text-gray-500" data-target="tab-data">Data Analysis</button>
+                        <button class="tab-link p-4 font-semibold text-gray-500" data-target="tab-meeting">Meeting Summaries</button>
+                    </div>
+                    <div id="tab-email" class="tab-content p-6 bg-white rounded-lg shadow-md">
+                        <h3 class="text-xl font-bold mb-2">Taming Your Inbox</h3>
+                        <p class="mb-4 text-gray-600">Quickly draft professional replies. Copilot can analyze the email context and generate a response that matches the tone and intent.</p>
+                        <div class="bg-gray-100 p-4 rounded-lg">
+                            <p class="font-mono text-sm"><strong>Example Prompt:</strong> "Draft a polite reply to this email, thanking the sender for their proposal and informing them our team will review it and respond within two weeks."</p>
+                        </div>
+                    </div>
+                    <div id="tab-data" class="tab-content hidden p-6 bg-white rounded-lg shadow-md">
+                        <h3 class="text-xl font-bold mb-2">Understanding Data in Excel</h3>
+                        <p class="mb-4 text-gray-600">Analyze data without complex formulas. Ask Copilot questions in plain language to uncover insights and create visualizations.</p>
+                        <div class="bg-gray-100 p-4 rounded-lg">
+                            <p class="font-mono text-sm"><strong>Example Prompt:</strong> "What is the average grant amount by category? Create a chart showing the distribution of funding."</p>
+                        </div>
+                    </div>
+                     <div id="tab-meeting" class="tab-content hidden p-6 bg-white rounded-lg shadow-md">
+                        <h3 class="text-xl font-bold mb-2">Recapping Meetings in Teams</h3>
+                        <p class="mb-4 text-gray-600">Never miss a detail. After a recorded Teams meeting, ask Copilot to summarize key decisions and identify action items.</p>
+                        <div class="bg-gray-100 p-4 rounded-lg">
+                            <p class="font-mono text-sm"><strong>Example Prompt:</strong> "What were the main decisions made and what are the action items from this meeting?"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="security" class="py-16 md:py-24 bg-white section-fade-in">
+             <div class="container mx-auto px-6">
+                 <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900">The Golden Rule of AI Security</h2>
+                     <p class="max-w-3xl mx-auto mt-4 text-lg text-gray-600">
+                        Using AI's power comes with the responsibility to protect our data. This section outlines the most important best practices. The core principle is simple but critical: enterprise data must stay within enterprise-grade tools to ensure privacy, compliance, and control.
+                    </p>
+                </div>
+                <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
+                    <div class="bg-green-50 border-l-4 border-green-500 p-6 rounded-r-lg">
+                        <h3 class="text-2xl font-bold text-green-800 mb-4">DO ✅</h3>
+                        <ul class="space-y-3 text-green-700">
+                            <li class="flex items-start"><span class="mr-3 mt-1">✓</span>Use enterprise-grade tools like Microsoft Copilot for all work-related tasks.</li>
+                            <li class="flex items-start"><span class="mr-3 mt-1">✓</span>Verify AI-generated information for accuracy before using it.</li>
+                            <li class="flex items-start"><span class="mr-3 mt-1">✓</span>Leverage AI to summarize internal documents and analyze secure data within the M365 environment.</li>
+                        </ul>
+                    </div>
+                     <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-r-lg">
+                        <h3 class="text-2xl font-bold text-red-800 mb-4">DON'T ❌</h3>
+                        <ul class="space-y-3 text-red-700">
+                            <li class="flex items-start"><span class="mr-3 mt-1">✗</span>Never use public AI platforms (ChatGPT, Gemini, etc.) for sensitive or confidential AGGP data.</li>
+                             <li class="flex items-start"><span class="mr-3 mt-1">✗</span>Avoid uploading internal documents, emails, or financial data to any public AI tool.</li>
+                            <li class="flex items-start"><span class="mr-3 mt-1">✗</span>Trust AI-generated content blindly. It can make mistakes.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="workshop" class="py-16 md:py-24 section-fade-in">
+             <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Workshop: Live Prompt Optimizer</h2>
+                     <p class="max-w-3xl mx-auto mt-4 text-lg text-gray-600">
+                        The quality of an AI's output depends on your input. Use this live tool to see how a more detailed prompt yields better results. Enter a simple request and let Gemini suggest an improved version.
+                    </p>
+                </div>
+                <div class="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-xl">
+                    <div>
+                        <label for="user-prompt" class="block text-xl font-bold mb-3">1. Enter Your Prompt</label>
+                        <textarea id="user-prompt" rows="3" class="w-full border border-gray-300 rounded-lg p-3" placeholder="e.g., Write about our education program."></textarea>
+                        <button id="optimize-prompt-btn" class="mt-4 w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition flex items-center justify-center">
+                            <span id="optimize-btn-text">Optimize Prompt ✨</span>
+                            <div id="optimize-loader" class="loader hidden ml-3"></div>
+                        </button>
+                    </div>
+                    <div class="mt-8">
+                        <h3 class="text-xl font-bold mb-3">2. Gemini's Optimized Prompt</h3>
+                        <div id="optimized-prompt-container" class="bg-blue-50 border border-blue-200 p-4 rounded-lg text-blue-800 min-h-[150px]">
+                            <p id="optimized-prompt-output" class="text-gray-500">Your optimized prompt will appear here...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="ideation" class="py-16 md:py-24 bg-white section-fade-in">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900">AI Ideation Hub</h2>
+                    <p class="max-w-3xl mx-auto mt-4 text-lg text-gray-600">
+                        Let's connect AI to our mission. Select a philanthropic goal from the list below, and Gemini will generate creative ideas on how AI could help advance that objective. This is a tool for sparking innovation and imagining new possibilities.
+                    </p>
+                </div>
+                <div class="max-w-3xl mx-auto">
+                    <label for="goal-selector" class="block text-lg font-medium mb-2">Select a Philanthropic Goal:</label>
+                    <select id="goal-selector" class="w-full p-3 border border-gray-300 rounded-lg">
+                        <option value="Improve educational outcomes for underserved youth">Improve educational outcomes for underserved youth</option>
+                        <option value="Enhance grant-making efficiency and impact measurement">Enhance grant-making efficiency and impact measurement</option>
+                        <option value="Support environmental conservation efforts">Support environmental conservation efforts</option>
+                        <option value="Streamline internal operations and knowledge management">Streamline internal operations and knowledge management</option>
+                    </select>
+                    <button id="generate-ideas-btn" class="mt-4 w-full bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700 transition flex items-center justify-center">
+                        <span id="ideas-btn-text">Generate Ideas ✨</span>
+                        <div id="ideas-loader" class="loader hidden ml-3"></div>
+                    </button>
+                </div>
+                <div id="ideas-output" class="max-w-3xl mx-auto mt-8">
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-16">
+        <div class="container mx-auto px-6 py-8 text-center">
+            <p>&copy; 2025 AGGP AI Awareness & Adoption Training</p>
+            <p class="text-sm text-gray-400 mt-2">Interactive Guide based on BDO / C5 Proposal</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('main section');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const currentId = entry.target.id;
+                        navLinks.forEach(link => {
+                            link.classList.toggle('active', link.getAttribute('href').substring(1) === currentId);
+                        });
+                        const mobileNav = document.getElementById('mobile-nav');
+                        if (mobileNav.value !== `#${currentId}`) {
+                            mobileNav.value = `#${currentId}`;
+                        }
+                    }
+                });
+            }, { rootMargin: "-50% 0px -50% 0px" });
+
+            sections.forEach(section => observer.observe(section));
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.querySelector(link.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+            const mobileNav = document.getElementById('mobile-nav');
+            mobileNav.addEventListener('change', () => {
+                const targetId = mobileNav.value;
+                 document.querySelector(targetId).scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            const accordionHeaders = document.querySelectorAll('.accordion-header');
+            accordionHeaders.forEach(header => {
+                header.addEventListener('click', () => {
+                    const content = document.getElementById(header.dataset.target);
+                    const arrow = header.querySelector('span');
+
+                    if (content.style.maxHeight) {
+                        content.style.maxHeight = null;
+                        arrow.style.transform = 'rotate(0deg)';
+                    } else {
+                        accordionHeaders.forEach(otherHeader => {
+                            const otherContent = document.getElementById(otherHeader.dataset.target);
+                            const otherArrow = otherHeader.querySelector('span');
+                            if(otherContent.style.maxHeight){
+                                otherContent.style.maxHeight = null;
+                                otherArrow.style.transform = 'rotate(0deg)';
+                            }
+                        });
+                        content.style.maxHeight = content.scrollHeight + "px";
+                        arrow.style.transform = 'rotate(180deg)';
+                    }
+                });
+            });
+
+            const chartData = {
+                security: {
+                    labels: ['Public AI', 'Enterprise AI'],
+                    datasets: [{
+                        label: 'Security Risk (Lower is Better)',
+                        data: [8, 2],
+                        backgroundColor: ['rgba(239, 68, 68, 0.6)', 'rgba(59, 130, 246, 0.6)'],
+                        borderColor: ['rgba(239, 68, 68, 1)', 'rgba(59, 130, 246, 1)'],
+                        borderWidth: 1
+                    }]
+                },
+                dataAccess: {
+                    labels: ['Public AI', 'Enterprise AI'],
+                    datasets: [{
+                        label: 'Internal Data Access (Higher is Better)',
+                        data: [1, 9],
+                        backgroundColor: ['rgba(239, 68, 68, 0.6)', 'rgba(59, 130, 246, 0.6)'],
+                        borderColor: ['rgba(239, 68, 68, 1)', 'rgba(59, 130, 246, 1)'],
+                        borderWidth: 1
+                    }]
+                }
+            };
+
+            const ctx = document.getElementById('comparisonChart').getContext('2d');
+            const comparisonChart = new Chart(ctx, {
+                type: 'bar',
+                data: chartData.security,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, max: 10 } },
+                    plugins: {
+                        title: { display: true, text: 'Security Risk Comparison', font: { size: 18 } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) { label += ': '; }
+                                    if (context.parsed.y !== null) {
+                                        const val = context.parsed.y;
+                                        if(context.dataset.label.includes('Security')) {
+                                            label += val > 5 ? 'High Risk' : 'Low Risk';
+                                        } else {
+                                             label += val > 5 ? 'High Access' : 'No Access';
+                                        }
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const securityBtn = document.getElementById('securityBtn');
+            const dataAccessBtn = document.getElementById('dataAccessBtn');
+
+            securityBtn.addEventListener('click', () => {
+                comparisonChart.data = chartData.security;
+                comparisonChart.options.plugins.title.text = 'Security Risk Comparison';
+                comparisonChart.update();
+                securityBtn.classList.add('bg-blue-600', 'text-white');
+                securityBtn.classList.remove('bg-gray-300', 'text-gray-800');
+                dataAccessBtn.classList.remove('bg-blue-600', 'text-white');
+                dataAccessBtn.classList.add('bg-gray-300', 'text-gray-800');
+            });
+
+            dataAccessBtn.addEventListener('click', () => {
+                comparisonChart.data = chartData.dataAccess;
+                comparisonChart.options.plugins.title.text = 'Internal Data Access Capability';
+                comparisonChart.update();
+                dataAccessBtn.classList.add('bg-blue-600', 'text-white');
+                dataAccessBtn.classList.remove('bg-gray-300', 'text-gray-800');
+                securityBtn.classList.remove('bg-blue-600', 'text-white');
+                securityBtn.classList.add('bg-gray-300', 'text-gray-800');
+            });
+            
+            const tabLinks = document.querySelectorAll('.tab-link');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    const target = document.getElementById(link.dataset.target);
+
+                    tabLinks.forEach(l => {
+                        l.classList.remove('active', 'text-blue-600', 'border-blue-600');
+                        l.classList.add('text-gray-500');
+                    });
+                    link.classList.add('active', 'text-blue-600', 'border-blue-600');
+                    link.classList.remove('text-gray-500');
+
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    target.classList.remove('hidden');
+                });
+            });
+
+            const callGeminiAPI = async (prompt) => {
+                const apiKey = ""; 
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                
+                const payload = {
+                    contents: [{
+                        role: "user",
+                        parts: [{ text: prompt }]
+                    }]
+                };
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`API call failed with status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    
+                    if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts.length > 0) {
+                        return result.candidates[0].content.parts[0].text;
+                    } else {
+                        return "Sorry, I couldn't get a response. The response from the API was empty or malformed.";
+                    }
+                } catch (error) {
+                    console.error("Gemini API Error:", error);
+                    return `An error occurred: ${error.message}. Please check the console for details.`;
+                }
+            };
+
+            const optimizePromptBtn = document.getElementById('optimize-prompt-btn');
+            const userPromptTextarea = document.getElementById('user-prompt');
+            const optimizedPromptOutput = document.getElementById('optimized-prompt-output');
+            const optimizeLoader = document.getElementById('optimize-loader');
+            const optimizeBtnText = document.getElementById('optimize-btn-text');
+
+            optimizePromptBtn.addEventListener('click', async () => {
+                const userPrompt = userPromptTextarea.value;
+                if (!userPrompt.trim()) {
+                    optimizedPromptOutput.textContent = "Please enter a prompt first.";
+                    optimizedPromptOutput.classList.remove('text-gray-500');
+                    optimizedPromptOutput.classList.add('text-red-500');
+                    return;
+                }
+
+                optimizeBtnText.classList.add('hidden');
+                optimizeLoader.classList.remove('hidden');
+                optimizePromptBtn.disabled = true;
+
+                const metaPrompt = `As an expert in prompt engineering, rewrite the following user's prompt to be more effective for a large language model. The new prompt should be specific, provide context, define a role for the AI, and specify the desired output format. Do not answer the prompt, only improve it.\n\nOriginal prompt: "${userPrompt}"`;
+                
+                const optimizedPrompt = await callGeminiAPI(metaPrompt);
+
+                optimizedPromptOutput.textContent = optimizedPrompt;
+                optimizedPromptOutput.classList.remove('text-gray-500', 'text-red-500');
+                
+                optimizeBtnText.classList.remove('hidden');
+                optimizeLoader.classList.add('hidden');
+                optimizePromptBtn.disabled = false;
+            });
+
+            const generateIdeasBtn = document.getElementById('generate-ideas-btn');
+            const goalSelector = document.getElementById('goal-selector');
+            const ideasOutputContainer = document.getElementById('ideas-output');
+            const ideasLoader = document.getElementById('ideas-loader');
+            const ideasBtnText = document.getElementById('ideas-btn-text');
+
+            generateIdeasBtn.addEventListener('click', async () => {
+                const selectedGoal = goalSelector.value;
+                
+                ideasBtnText.classList.add('hidden');
+                ideasLoader.classList.remove('hidden');
+                generateIdeasBtn.disabled = true;
+                ideasOutputContainer.innerHTML = '';
+
+                const ideasPrompt = `Within the context of a philanthropy like the Allan & Gill Gray Philanthropy (AGGP), generate 3 creative and practical ideas for how Artificial Intelligence could be used to help achieve the following strategic goal: "${selectedGoal}". For each idea, provide a title and a short, 2-3 sentence description of the concept. Format the output as a numbered list.`;
+
+                const ideasResponse = await callGeminiAPI(ideasPrompt);
+
+                const ideas = ideasResponse.split(/\n\s*\d\.\s*/).filter(idea => idea.trim() !== '');
+
+                ideas.forEach(ideaText => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-white p-6 rounded-lg shadow-md mb-4 border-l-4 border-green-500';
+                    
+                    const titleMatch = ideaText.match(/^(.*?):/);
+                    let title = `Idea`;
+                    let description = ideaText;
+
+                    if (titleMatch) {
+                        title = titleMatch[1].trim();
+                        description = ideaText.replace(titleMatch[0], '').trim();
+                    }
+
+                    card.innerHTML = `<h4 class="text-lg font-bold text-gray-800 mb-2">${title}</h4><p class="text-gray-600">${description}</p>`;
+                    ideasOutputContainer.appendChild(card);
+                });
+
+                ideasBtnText.classList.remove('hidden');
+                ideasLoader.classList.add('hidden');
+                generateIdeasBtn.disabled = false;
+            });
+        });
+    </script>
+</body>
+</html>
