@@ -7,16 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Calm Harmony -->
-    <!-- Application Structure Plan: The SPA is designed as a single-page, vertical-scrolling experience with a sticky top navigation bar. This non-linear structure allows users (AGGP employees) to freely explore the training content based on their interests, rather than being confined to the linear flow of the original document. The sections are task-oriented ('Fundamentals', 'Tool Comparison', 'Productivity') to be more intuitive. Key interactions include a dynamic chart for comparing AI tools and a prompt simulator in the workshop section. This structure was chosen to transform a static lesson plan into an engaging, self-paced learning tool, enhancing comprehension and retention. -->
-    <!-- Visualization & Content Choices: 
-        - Report Info: Core AI Concepts (AI, ML, NLP). Goal: Inform. Viz/Method: Interactive accordion (HTML/JS). Interaction: Click to reveal definitions. Justification: Condenses foundational knowledge into a digestible, on-demand format.
-        - Report Info: Public vs. Enterprise AI comparison table. Goal: Compare. Viz/Method: Static HTML table + Dynamic Bar Chart (Chart.js). Interaction: Buttons toggle the chart to visualize 'Security' and 'Data Access' differences. Justification: A visual chart makes the abstract but critical differences in security and data handling immediately apparent, which is more impactful than a table alone.
-        - Report Info: Productivity Use Cases. Goal: Inform/Organize. Viz/Method: Clickable tabs (HTML/JS). Interaction: Clicking a tab (e.g., 'Email Drafting') reveals a detailed example. Justification: Organizes multiple examples cleanly, preventing information overload and allowing users to focus on one use case at a time.
-        - Report Info: Prompt Engineering example. Goal: Change/Inform. Viz/Method: Interactive text block with Gemini API call. Interaction: User enters a prompt, clicks a button, and Gemini API returns an optimized version. Justification: Actively teaches skillful prompting in a hands-on, personalized manner.
-        - New Feature: AI Ideation Hub. Goal: Ideate/Innovate. Viz/Method: Dropdown + Gemini API call. Interaction: User selects a philanthropic goal, and Gemini generates AI application ideas. Justification: Directly connects AI capabilities to the organization's mission, fostering practical innovation.
-    -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body { font-family: 'Inter', sans-serif; }
         .nav-link { transition: color 0.3s, border-bottom-color 0.3s; }
@@ -28,6 +18,22 @@
         @media (min-width: 768px) { .chart-container { height: 400px; } }
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .quiz-feedback {
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+            border-radius: 0.375rem;
+            display: none; /* Hidden by default */
+        }
+        .quiz-feedback.correct {
+            background-color: #ecfdf5; /* green-50 */
+            color: #065f46; /* green-800 */
+            display: block;
+        }
+        .quiz-feedback.incorrect {
+            background-color: #fef2f2; /* red-50 */
+            color: #991b1b; /* red-800 */
+            display: block;
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
@@ -43,6 +49,7 @@
                 <a href="#security" class="nav-link font-medium text-gray-600 hover:text-blue-600 border-b-2 pb-1">Security</a>
                 <a href="#workshop" class="nav-link font-medium text-gray-600 hover:text-blue-600 border-b-2 pb-1">Workshop</a>
                 <a href="#ideation" class="nav-link font-medium text-gray-600 hover:text-blue-600 border-b-2 pb-1">Ideation Hub</a>
+                <a href="#quiz" class="nav-link font-medium text-gray-600 hover:text-blue-600 border-b-2 pb-1">Quiz</a>
             </nav>
             <div class="md:hidden">
                 <select id="mobile-nav" class="bg-white border border-gray-300 rounded-md p-2">
@@ -53,6 +60,7 @@
                     <option value="#security">Security</option>
                     <option value="#workshop">Workshop</option>
                     <option value="#ideation">Ideation Hub</option>
+                    <option value="#quiz">Quiz</option>
                 </select>
             </div>
         </div>
@@ -117,7 +125,7 @@
                         Not all AI tools are created equal. This section highlights the crucial differences between public tools (like the free version of ChatGPT) and enterprise solutions (like Microsoft Copilot). Understanding these distinctions is key to using AI securely and effectively for work.
                     </p>
                 </div>
-                
+
                 <div class="chart-container mb-12">
                     <canvas id="comparisonChart"></canvas>
                 </div>
@@ -282,6 +290,80 @@
                 </div>
             </div>
         </section>
+
+        <section id="quiz" class="py-16 md:py-24 section-fade-in">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Test Your Knowledge</h2>
+                    <p class="max-w-3xl mx-auto mt-4 text-lg text-gray-600">
+                        This short quiz will help you check your understanding of the key concepts covered in this guide.
+                    </p>
+                </div>
+                <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-xl">
+                    <form id="quiz-form">
+                        <div class="mb-8">
+                            <p class="font-semibold text-lg mb-3">1. According to the "Golden Rule of AI Security," where should you handle sensitive or confidential AGGP data?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-100 cursor-pointer">
+                                    <input type="radio" name="q1" value="a" class="mr-3">
+                                    <span>On any public AI platform like ChatGPT, as long as you have an account.</span>
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-100 cursor-pointer">
+                                    <input type="radio" name="q1" value="b" class="mr-3">
+                                    <span>Only within enterprise-grade tools like Microsoft Copilot.</span>
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-100 cursor-pointer">
+                                    <input type="radio" name="q1" value="c" class="mr-3">
+                                    <span>It's safe to upload documents to public AI tools if you delete the history afterward.</span>
+                                </label>
+                            </div>
+                            <div id="feedback-q1" class="quiz-feedback"></div>
+                        </div>
+                        <div class="mb-8">
+                            <p class="font-semibold text-lg mb-3">2. What is a key advantage of Enterprise AI (e.g., Microsoft Copilot) over Public AI?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-100 cursor-pointer">
+                                    <input type="radio" name="q2" value="a" class="mr-3">
+                                    <span>It is always free to use for personal tasks.</span>
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-100 cursor-pointer">
+                                    <input type="radio" name="q2" value="b" class="mr-3">
+                                    <span>It can access and work with your internal organizational data (emails, docs).</span>
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-100 cursor-pointer">
+                                    <input type="radio" name="q2" value="c" class="mr-3">
+                                    <span>It generates more creative and interesting images.</span>
+                                </label>
+                            </div>
+                            <div id="feedback-q2" class="quiz-feedback"></div>
+                        </div>
+                        <div class="mb-8">
+                            <p class="font-semibold text-lg mb-3">3. What does GenAI (Generative AI) do?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-100 cursor-pointer">
+                                    <input type="radio" name="q3" value="a" class="mr-3">
+                                    <span>It only analyzes data and creates charts.</span>
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-100 cursor-pointer">
+                                    <input type="radio" name="q3" value="b" class="mr-3">
+                                    <span>It can create new, original content like text, images, or code.</span>
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-100 cursor-pointer">
+                                    <input type="radio" name="q3" value="c" class="mr-3">
+                                    <span>It is just another term for a computer's spam filter.</span>
+                                </label>
+                            </div>
+                            <div id="feedback-q3" class="quiz-feedback"></div>
+                        </div>
+                        <button type="submit" id="submit-quiz-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition">Submit Quiz</button>
+                    </form>
+                    <div id="quiz-results" class="mt-8 text-center hidden">
+                        <h3 class="text-2xl font-bold">Quiz Complete!</h3>
+                        <p class="text-lg mt-2">Your score: <span id="quiz-score" class="font-bold"></span></p>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
     <footer class="bg-gray-800 text-white mt-16">
@@ -313,7 +395,7 @@
             }, { rootMargin: "-50% 0px -50% 0px" });
 
             sections.forEach(section => observer.observe(section));
-            
+
             navLinks.forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -328,7 +410,7 @@
                 const targetId = mobileNav.value;
                  document.querySelector(targetId).scrollIntoView({ behavior: 'smooth' });
             });
-            
+
             const accordionHeaders = document.querySelectorAll('.accordion-header');
             accordionHeaders.forEach(header => {
                 header.addEventListener('click', () => {
@@ -429,7 +511,7 @@
                 securityBtn.classList.remove('bg-blue-600', 'text-white');
                 securityBtn.classList.add('bg-gray-300', 'text-gray-800');
             });
-            
+
             const tabLinks = document.querySelectorAll('.tab-link');
             const tabContents = document.querySelectorAll('.tab-content');
 
@@ -452,9 +534,9 @@
             });
 
             const callGeminiAPI = async (prompt) => {
-                const apiKey = "AIzaSyBWGt3u05WbKFiqnFysrZo8pbkMCTR1Ouo"; 
+                const apiKey = "AIzaSyBWGt3u05WbKFiqnFysrZo8pbkMCTR1Ouo";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-                
+
                 const payload = {
                     contents: [{
                         role: "user",
@@ -474,7 +556,7 @@
                     }
 
                     const result = await response.json();
-                    
+
                     if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts.length > 0) {
                         return result.candidates[0].content.parts[0].text;
                     } else {
@@ -506,12 +588,12 @@
                 optimizePromptBtn.disabled = true;
 
                 const metaPrompt = `As an expert in prompt engineering, rewrite the following user's prompt to be more effective for a large language model. The new prompt should be specific, provide context, define a role for the AI, and specify the desired output format. Do not answer the prompt, only improve it.\n\nOriginal prompt: "${userPrompt}"`;
-                
+
                 const optimizedPrompt = await callGeminiAPI(metaPrompt);
 
                 optimizedPromptOutput.textContent = optimizedPrompt;
                 optimizedPromptOutput.classList.remove('text-gray-500', 'text-red-500');
-                
+
                 optimizeBtnText.classList.remove('hidden');
                 optimizeLoader.classList.add('hidden');
                 optimizePromptBtn.disabled = false;
@@ -525,7 +607,7 @@
 
             generateIdeasBtn.addEventListener('click', async () => {
                 const selectedGoal = goalSelector.value;
-                
+
                 ideasBtnText.classList.add('hidden');
                 ideasLoader.classList.remove('hidden');
                 generateIdeasBtn.disabled = true;
@@ -540,7 +622,7 @@
                 ideas.forEach(ideaText => {
                     const card = document.createElement('div');
                     card.className = 'bg-white p-6 rounded-lg shadow-md mb-4 border-l-4 border-green-500';
-                    
+
                     const titleMatch = ideaText.match(/^(.*?):/);
                     let title = `Idea`;
                     let description = ideaText;
@@ -557,6 +639,52 @@
                 ideasBtnText.classList.remove('hidden');
                 ideasLoader.classList.add('hidden');
                 generateIdeasBtn.disabled = false;
+            });
+
+            // --- QUIZ LOGIC ---
+            const quizForm = document.getElementById('quiz-form');
+            quizForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const answers = {
+                    q1: 'b',
+                    q2: 'b',
+                    q3: 'b'
+                };
+                const feedbackMessages = {
+                    q1: "Correct! Enterprise data must always stay within secure, enterprise-grade environments. Public tools may use your data for training.",
+                    q2: "Exactly! Enterprise AI's ability to securely access internal data is what makes it a powerful productivity tool for work.",
+                    q3: "That's right! Generative AI is defined by its ability to create new content, which is what powers tools like ChatGPT and Copilot."
+                };
+
+                let score = 0;
+                const totalQuestions = Object.keys(answers).length;
+                const formData = new FormData(quizForm);
+
+                for (const [question, correctAnswer] of Object.entries(answers)) {
+                    const userAnswer = formData.get(question);
+                    const feedbackEl = document.getElementById(`feedback-${question}`);
+                    feedbackEl.classList.remove('correct', 'incorrect');
+                    
+                    if (userAnswer === correctAnswer) {
+                        score++;
+                        feedbackEl.textContent = feedbackMessages[question];
+                        feedbackEl.classList.add('correct');
+                    } else {
+                         feedbackEl.textContent = "Incorrect. The correct answer is highlighted in the feedback for the right option.";
+                         feedbackEl.classList.add('incorrect');
+                         // Show correct feedback on the right answer
+                         const correctFeedbackEl = document.getElementById(`feedback-${question}`);
+                         correctFeedbackEl.textContent = feedbackMessages[question];
+                         correctFeedbackEl.classList.add('correct');
+                    }
+                }
+
+                const quizResults = document.getElementById('quiz-results');
+                const quizScore = document.getElementById('quiz-score');
+                quizScore.textContent = `${score} out of ${totalQuestions}`;
+                quizResults.classList.remove('hidden');
+
+                document.getElementById('submit-quiz-btn').disabled = true;
             });
         });
     </script>
